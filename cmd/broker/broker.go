@@ -21,7 +21,7 @@ import (
 	"github.com/rs/cors"
 )
 
-var proxyURL = "http://localhost:8888"
+var proxyURL = "http://47.97.97.208:8888"
 
 type Broker struct {
 	ID           string
@@ -211,7 +211,7 @@ func startBroker(brokerConfig configloader.BrokerConfig, db *database.MongoDB, r
 	err := broker.register2Proxy(proxyURL)
 	if err != nil {
 		log.LogError("Broker", fmt.Sprintf("Failed to register broker %s: %v", brokerConfig.ID, err))
-		return
+		os.Exit(1) // 直接退出程序
 	}
 
 	broker.Start()
@@ -242,20 +242,22 @@ func main() {
 	}
 
 	// Connect MongoDB for each broker
-	db, err := database.ConnectMongoDB("mongodb://localhost:27017", "comp47250", "users")
+	db, err := database.ConnectMongoDB("mongodb://root:528743Er@dds-bp1ca790bb54aae43.mongodb.rds.aliyuncs.com:3717,dds-bp1ca790bb54aae41.mongodb.rds.aliyuncs.com:3717", "comp47250", "users")
 	if err != nil {
 		log.LogError("Broker", "Failed to initialize MongoDB: "+err.Error())
 		return
 	}
 
-	rsi := redis.NewRedisClusterClient([]string{
-		"localhost:6381",
-		"localhost:6382",
-		"localhost:6383",
-		"localhost:6384",
-		"localhost:6385",
-		"localhost:6386",
-	}, "", 0, api.BroadcastMessage)
+	rsi := redis.NewRedisClient("r-bp1y2j4ytxhsdhyy8d.redis.rds.aliyuncs.com:6379", "", 0)
+
+	// rsi := redis.NewRedisClusterClient([]string{
+	// 	"localhost:6381",
+	// 	"localhost:6382",
+	// 	"localhost:6383",
+	// 	"localhost:6384",
+	// 	"localhost:6385",
+	// 	"localhost:6386",
+	// }, "", 0, api.BroadcastMessage)
 
 	// rsi := redis.NewRedisClusterClient([]string{
 	// 	"localhost:6387",
